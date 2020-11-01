@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "706261443422",
+    "firebase_url": "https://tinder-flutter-ea53c.firebaseio.com",
+    "project_id": "tinder-flutter-ea53c",
+    "storage_bucket": "tinder-flutter-ea53c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:706261443422:android:4234aadbd2b1320aba25cf",
+        "android_client_info": {
+          "package_name": "com.example.przemek.t.tinder_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "706261443422-1l33l0t6ol9jpbf4ksdhido7rbhd8p7n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADTCDniDnf5rRksOAnt2n1IkmuZkjQd0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "706261443422-1l33l0t6ol9jpbf4ksdhido7rbhd8p7n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
