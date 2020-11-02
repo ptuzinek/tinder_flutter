@@ -6,6 +6,7 @@ import 'package:tinder_flutter/constants.dart';
 import 'package:tinder_flutter/screens/chat_wall_screen.dart';
 
 final _firestore = FirebaseFirestore.instance;
+User loggedUser;
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat_screen';
@@ -15,7 +16,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _auth = FirebaseAuth.instance;
-  User loggedUser;
+
   String messageText;
 
   final messageTextController = TextEditingController();
@@ -82,8 +83,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   FlatButton(
                     onPressed: () {
                       messageTextController.clear();
-                      _firestore.collection('messages').add(
-                          {'text': messageText, 'sender': loggedUser.email});
+                      _firestore.collection('messages').add({
+                        'text': messageText,
+                        'sender': loggedUser.email,
+                        'timestamp': FieldValue.serverTimestamp(),
+                      });
                     },
                     child: Text(
                       'Send',
@@ -100,11 +104,64 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
+class MessageBubble extends StatelessWidget {
+  final String messageText;
+  final String messageSender;
+  final bool isMe;
+
+  const MessageBubble({this.messageText, this.messageSender, this.isMe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Text(
+            'sender: $messageSender',
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey,
+            ),
+          ),
+          Material(
+            color: isMe ? Colors.orangeAccent : Colors.grey[300],
+            elevation: 5,
+            borderRadius: isMe
+                ? BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                  )
+                : BorderRadius.only(
+                    topRight: Radius.circular(30),
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                  ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: Text(
+                '$messageText',
+                style: TextStyle(fontSize: 15),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class MessagesStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: _firestore.collection('messages').snapshots(),
+      stream: _firestore
+          .collection('messages')
+          .orderBy('timestamp', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         List<MessageBubble> messageWidgets = [];
         if (snapshot.hasData) {
@@ -112,13 +169,17 @@ class MessagesStream extends StatelessWidget {
           for (var message in messages) {
             final messageText = message.get('text');
             final messageSender = message.get('sender');
+            final currentUser = loggedUser.email;
             final messageWidget = MessageBubble(
-                messageText: messageText, messageSender: messageSender);
+                isMe: (currentUser == messageSender),
+                messageText: messageText,
+                messageSender: messageSender);
             messageWidgets.add(messageWidget);
           }
         }
         return Expanded(
           child: ListView(
+            reverse: true,
             padding: EdgeInsets.all(10),
             children: messageWidgets,
           ),
