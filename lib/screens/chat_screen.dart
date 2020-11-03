@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:tinder_flutter/components/message_bubble.dart';
 import 'package:tinder_flutter/constants.dart';
 import 'package:tinder_flutter/screens/chat_wall_screen.dart';
 

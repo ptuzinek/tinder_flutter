@@ -6,6 +6,7 @@ import 'package:tinder_flutter/screens/picture_screen.dart';
 import 'package:tinder_flutter/screens/profile_info.dart';
 import 'package:tinder_flutter/screens/registration.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:tinder_flutter/screens/swipe_screen.dart';
 import 'package:tinder_flutter/screens/welcome_screen.dart';
 
 void main() async {
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       //darkTheme: ThemeData.dark(),
-      initialRoute: WelcomeScreen.id,
+      initialRoute: SwipeScreen.id,
       routes: {
         WelcomeScreen.id: (context) => WelcomeScreen(),
         RegistrationScreen.id: (context) => RegistrationScreen(),
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         PictureScreen.id: (context) => PictureScreen(),
         ChatScreen.id: (context) => ChatScreen(),
         ChatWallScreen.id: (context) => ChatWallScreen(),
+        SwipeScreen.id: (context) => SwipeScreen(),
       },
     );
   }
