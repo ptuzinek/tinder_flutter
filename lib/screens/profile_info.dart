@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tinder_flutter/components/rounded_button.dart';
@@ -18,6 +20,7 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
   bool isNext = false;
   bool isReady = false;
   String name;
+  String email;
   String age;
   String gender;
   String school;
@@ -149,7 +152,7 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                 onPressed: () async {
                   // Get user and update his data
                   await DatabaseService(uid: loggedUser.uid)
-                      .updateUserData(name, age);
+                      .updateUserData(name, age, loggedUser.email);
                   // goto the next screen - adding photos
                   if (isReady) {
                     Navigator.pushNamed(context, PictureScreen.id);

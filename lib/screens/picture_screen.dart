@@ -8,6 +8,7 @@ import 'package:tinder_flutter/components/rounded_button.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'chat_screen.dart';
+import 'chat_wall_screen.dart';
 
 class PictureScreen extends StatefulWidget {
   static String id = 'picture_screen';
@@ -79,7 +80,8 @@ class _PictureScreenState extends State<PictureScreen> {
                   onPressed: () {
                     // goto the next screen - adding photos
                     if (isReady) {
-                      Navigator.pushReplacementNamed(context, ChatScreen.id);
+                      Navigator.pushReplacementNamed(
+                          context, ChatWallScreen.id);
                     }
                   },
                 )

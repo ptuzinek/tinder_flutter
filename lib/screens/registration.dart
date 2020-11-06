@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tinder_flutter/components/rounded_button.dart';
 import 'package:tinder_flutter/components/rounded_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tinder_flutter/screens/chat_screen.dart';
 import 'package:tinder_flutter/screens/profile_info.dart';
 import 'package:tinder_flutter/services/database_service.dart';
 
@@ -78,7 +79,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     // create a new document for the new user with uid
                     await DatabaseService(uid: user.uid)
-                        .updateUserData('name', 'age');
+                        .updateUserData('name', 'age', 'email');
 
                     // goto the next screen - adding photos
                     if (isReady && result != null) {

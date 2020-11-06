@@ -9,6 +9,7 @@ User loggedUser;
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat_screen';
+
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -37,6 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final user = _auth.currentUser;
       if (user != null) {
         loggedUser = user;
+        print('PRINT UID OF CURRENT USER:  ${loggedUser.uid}');
       }
     } catch (e) {
       print(e);
@@ -45,6 +47,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final String uidClickedUser = ModalRoute.of(context)
+        .settings
+        .arguments; // tutaj przychodzi informacja o wybranym uzytkowniku do chatu, trzeba ja przeslac do widgetu nizej - MessagesStream, zeby dobry czat sciagnal
+    print('PRINT UID OF RECEIVER: $uidClickedUser');
+
     return Scaffold(
       appBar: AppBar(
         leading: null,
@@ -64,7 +71,9 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            MessagesStream(),
+            MessagesStream(
+              uidClickedUser: uidClickedUser,
+            ),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -82,11 +91,33 @@ class _ChatScreenState extends State<ChatScreen> {
                   FlatButton(
                     onPressed: () {
                       messageTextController.clear();
-                      _firestore.collection('messages').add({
+                      _firestore
+                          .collection('details')
+                          .doc('${loggedUser.uid}')
+                          .collection('chats')
+                          .doc(
+                              '$uidClickedUser') // kazdy czat mial swoj unikalny id - info z kim dana konwersacja
+                          .collection('messages')
+                          .add({
                         'text': messageText,
                         'sender': loggedUser.email,
                         'timestamp': FieldValue.serverTimestamp(),
                       });
+
+                      if (loggedUser.uid != uidClickedUser) {
+                        _firestore
+                            .collection('details')
+                            .doc('$uidClickedUser')
+                            .collection('chats')
+                            .doc(
+                                '${loggedUser.uid}') // kazdy czat mial swoj unikalny id - info z kim dana konwersacja
+                            .collection('messages')
+                            .add({
+                          'text': messageText,
+                          'sender': loggedUser.email,
+                          'timestamp': FieldValue.serverTimestamp(),
+                        });
+                      }
                     },
                     child: Text(
                       'Send',
@@ -121,8 +152,8 @@ class MessageBubble extends StatelessWidget {
           Text(
             'sender: $messageSender',
             style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey,
+              fontSize: 13,
+              color: Colors.grey[800],
             ),
           ),
           Material(
@@ -154,10 +185,19 @@ class MessageBubble extends StatelessWidget {
 }
 
 class MessagesStream extends StatelessWidget {
+  final String uidClickedUser;
+
+  MessagesStream({this.uidClickedUser});
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: _firestore
+          .collection('details')
+          .doc('${loggedUser.uid}')
+          .collection('chats')
+          .doc(
+              '$uidClickedUser') // wczyta konwersacje z uzytkownikiem jaki zostal klikniety w ChatWall i stamtad przyjdzie informacja
           .collection('messages')
           .orderBy('timestamp', descending: true)
           .snapshots(),

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseService {
-
   final String uid;
   //collection reference
   final CollectionReference detailsCollection =
@@ -10,10 +9,11 @@ class DatabaseService {
   DatabaseService({this.uid});
 
   // Function to add data into firestore
-  Future updateUserData(String name, String age) async {
+  Future updateUserData(String name, String age, String email) async {
     return await detailsCollection.doc(uid).set({
       'name': name,
       'age': age,
+      'email': email,
     });
   }
 }

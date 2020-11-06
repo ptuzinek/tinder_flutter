@@ -3,7 +3,8 @@ import 'package:tinder_flutter/screens/chat_screen.dart';
 
 class ChatWallRow extends StatelessWidget {
   final String text;
-  ChatWallRow({this.text});
+  final String uidReceiver;
+  ChatWallRow({this.text, this.uidReceiver});
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +12,8 @@ class ChatWallRow extends StatelessWidget {
       padding: const EdgeInsets.all(10.0),
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, ChatScreen.id);
+          print('CLICKED USER UID: $uidReceiver');
+          Navigator.pushNamed(context, ChatScreen.id, arguments: uidReceiver);
         },
         child: Container(
           height: 80,
