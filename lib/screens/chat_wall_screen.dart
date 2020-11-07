@@ -16,9 +16,11 @@ class _ChatWallScreenState extends State<ChatWallScreen> {
     // ToDo tutaj powinien zwracać tylko tych uzytkownikow, z ktorymi jest match - oddzielna kolekcja dla danego uzytkownika
     return snapshot.data.docs
         .map((doc) => ChatWallRow(
-              text: doc["name"],
-              uidReceiver: doc.reference.id,
-            )) // podać tez uid do tego widgeta
+              imageUrl: doc[
+                  'photoUrl'], // ToDo dac tutaj jakies zabezpieczenie jakby uzytkownik nie mial zdjecia ale kazdy powinin miec
+              name: doc["name"],
+              uidClickedUser: doc.reference.id,
+            ))
         .toList();
   }
 

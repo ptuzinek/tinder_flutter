@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tinder_flutter/components/chat_wall_row.dart';
 import 'package:tinder_flutter/constants.dart';
 import 'package:tinder_flutter/screens/chat_wall_screen.dart';
 
@@ -47,14 +48,22 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String uidClickedUser = ModalRoute.of(context)
+    UserData clickedUserData = ModalRoute.of(context)
         .settings
         .arguments; // tutaj przychodzi informacja o wybranym uzytkowniku do chatu, trzeba ja przeslac do widgetu nizej - MessagesStream, zeby dobry czat sciagnal
-    print('PRINT UID OF RECEIVER: $uidClickedUser');
+    print('PRINT UID OF RECEIVER: ${clickedUserData.uidClicked}');
 
     return Scaffold(
       appBar: AppBar(
-        leading: null,
+        leading: CircleAvatar(
+          // ToDo wyswietl zdjecie profilowe na scianie konwersacji
+          backgroundColor: Colors.grey[300],
+          child: ClipOval(
+            child: (clickedUserData.imageUrl == null)
+                ? Image.asset('images/blanprofile.png')
+                : Image.network(clickedUserData.imageUrl),
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.close),
@@ -63,7 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           )
         ],
-        title: Text('⚡️Chat'),
+        title: Text(clickedUserData.name),
         backgroundColor: Colors.deepOrangeAccent,
       ),
       body: SafeArea(
@@ -72,7 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             MessagesStream(
-              uidClickedUser: uidClickedUser,
+              uidClickedUser: clickedUserData.uidClicked,
             ),
             Container(
               decoration: kMessageContainerDecoration,
@@ -96,7 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           .doc('${loggedUser.uid}')
                           .collection('chats')
                           .doc(
-                              '$uidClickedUser') // kazdy czat mial swoj unikalny id - info z kim dana konwersacja
+                              '${clickedUserData.uidClicked}') // kazdy czat mial swoj unikalny id - info z kim dana konwersacja
                           .collection('messages')
                           .add({
                         'text': messageText,
@@ -104,10 +113,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         'timestamp': FieldValue.serverTimestamp(),
                       });
 
-                      if (loggedUser.uid != uidClickedUser) {
+                      if (loggedUser.uid != clickedUserData.uidClicked) {
                         _firestore
                             .collection('details')
-                            .doc('$uidClickedUser')
+                            .doc('${clickedUserData.uidClicked}')
                             .collection('chats')
                             .doc(
                                 '${loggedUser.uid}') // kazdy czat mial swoj unikalny id - info z kim dana konwersacja

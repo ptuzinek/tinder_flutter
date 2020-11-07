@@ -152,7 +152,7 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                 onPressed: () async {
                   // Get user and update his data
                   await DatabaseService(uid: loggedUser.uid)
-                      .updateUserData(name, age, loggedUser.email);
+                      .setUserData(name, age, loggedUser.email);
                   // goto the next screen - adding photos
                   if (isReady) {
                     Navigator.pushNamed(context, PictureScreen.id);

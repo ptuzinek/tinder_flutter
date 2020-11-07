@@ -9,11 +9,20 @@ class DatabaseService {
   DatabaseService({this.uid});
 
   // Function to add data into firestore
-  Future updateUserData(String name, String age, String email) async {
-    return await detailsCollection.doc(uid).set({
-      'name': name,
-      'age': age,
-      'email': email,
-    });
+  Future setUserData(String name, String age, String email) async {
+    return await detailsCollection.doc(uid)
+      ..set({
+        'name': name,
+        'age': age,
+        'email': email,
+      });
   }
+
+  // Future updateUserData(String name, String age, String email) async {
+  //   return await detailsCollection.doc(uid)..set({
+  //     'name': name,
+  //     'age': age,
+  //     'email': email,
+  //   });
+  // }
 }

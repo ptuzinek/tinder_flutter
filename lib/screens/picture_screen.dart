@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tinder_flutter/components/rounded_button.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'chat_screen.dart';
 import 'chat_wall_screen.dart';
@@ -21,6 +22,7 @@ class _PictureScreenState extends State<PictureScreen> {
   bool isReady = false;
 
   final _auth = FirebaseAuth.instance;
+
   User loggedUser;
 
   @override
@@ -117,6 +119,14 @@ class _PictureScreenState extends State<PictureScreen> {
         setState(() {
           imageUrl = downloadUrl;
           isReady = true;
+
+          // ToDo dodac link do zdjecia do informacji o profilu w firestore
+        });
+        await FirebaseFirestore.instance
+            .collection('details')
+            .doc(loggedUser.uid)
+            .update({
+          'photoUrl': downloadUrl,
         });
       } else {
         print('No Path Received');

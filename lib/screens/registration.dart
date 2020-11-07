@@ -79,7 +79,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     // create a new document for the new user with uid
                     await DatabaseService(uid: user.uid)
-                        .updateUserData('name', 'age', 'email');
+                        .setUserData('name', 'age', 'email');
 
                     // goto the next screen - adding photos
                     if (isReady && result != null) {
