@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       //darkTheme: ThemeData.dark(),
-      initialRoute: WelcomeScreen.id,
+      initialRoute: SwipeScreen.id,
       routes: {
         WelcomeScreen.id: (context) => WelcomeScreen(),
         RegistrationScreen.id: (context) => RegistrationScreen(),

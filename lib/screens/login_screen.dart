@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:tinder_flutter/components/rounded_button.dart';
 import 'package:tinder_flutter/components/rounded_text_field.dart';
+import 'package:tinder_flutter/screens/swipe_screen.dart';
 
 import 'chat_screen.dart';
 import 'chat_wall_screen.dart';
@@ -74,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 email: email, password: password);
                         if (UserCredential != null) {
                           Navigator.pushReplacementNamed(
-                              context, ChatWallScreen.id);
+                              context, SwipeScreen.id);
                         }
                         setState(() {
                           showSpinner = false;
