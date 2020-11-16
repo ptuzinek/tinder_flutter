@@ -11,28 +11,33 @@ class SwipeScreen extends StatefulWidget {
 }
 
 class _SwipeScreenState extends State<SwipeScreen> {
+  // ToDo - Fetch all users and get their photo url into the list
+  // ToDo - also get all users uid in a list -> usersToMatch
+
   CardController controller;
   int buttonIndex = 0;
   List<String> profileImages = [
-    'images/blanprofile.png',
-    'images/Fish_logo.png',
+    // 'images/blanprofile.png',
+    // 'images/Fish_logo.png',
   ];
   List<String> uidCurrentMatches = [];
   List<String> uidUsersToMatch = [];
+  List<List<String>> uidAndUrl = [];
+  List<String> userNames = [];
 
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
 
   User loggedUser;
+  int number = 1;
 
   @override
   void initState() {
     super.initState();
     getUser();
-    print('Current matches: $uidCurrentMatches');
     getUsersToMatch();
-    print('Current matches: $uidCurrentMatches');
-    addToMatchesOrSelections('Vh1BxaLQbCUAKK49Thnid8D7SSy1');
+
+    //addToMatchesOrSelections('Vh1BxaLQbCUAKK49Thnid8D7SSy1');
   }
 
   void getUser() {
@@ -54,7 +59,8 @@ class _SwipeScreenState extends State<SwipeScreen> {
     controller.triggerRight();
   }
 
-  void getUsersToMatch() async {
+  Future<List<List<String>>> getUsersToMatch() async {
+    List<List<String>> uidAndUrl = [];
     // stworzyc liste zawierajaca wszystkie match'e
     print('Current matches: $uidCurrentMatches');
     await _firestore
@@ -77,12 +83,23 @@ class _SwipeScreenState extends State<SwipeScreen> {
               // to nie wyswietlaj ich
 
             } else {
-              // dodaj do listy uzytkownikow do wyswietlenia
-              uidUsersToMatch.add(element.reference.id);
+              if (loggedUser.uid != element.reference.id) {
+                // dodaj do listy uzytkownikow do wyswietlenia
+                uidUsersToMatch.add(element.reference.id);
+                profileImages.add(element['photoUrl']);
+                userNames.add(element['name']);
+              }
             }
           })
         });
     print('Users to display: $uidUsersToMatch');
+    print('Profile Images to display: $profileImages');
+    uidAndUrl.add(uidUsersToMatch);
+    uidAndUrl.add(profileImages);
+    setState(() {
+      number = uidUsersToMatch.length;
+    });
+    return uidAndUrl;
   }
 
   void addToMatchesOrSelections(String uidSelectedUser) async {
@@ -142,66 +159,103 @@ class _SwipeScreenState extends State<SwipeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('uid Users To Match NUMBER: ${uidUsersToMatch.length}');
+
     controller = CardController();
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Center(
           child: Container(
-            child: TinderSwapCard(
-              swipeCompleteCallback:
-                  (CardSwipeOrientation orientation, int index) {
-                print('SWIPE ORIENTATION: $orientation');
-                print('SWIPE INDEX $index');
-              },
-              allowVerticalMovement: false,
-              cardController: controller,
-              totalNum: 2,
-              stackNum: 2,
-              maxHeight: MediaQuery.of(context).size.width * 0.9,
-              maxWidth: MediaQuery.of(context).size.width * 0.9,
-              minWidth: MediaQuery.of(context).size.width * 0.8,
-              minHeight: MediaQuery.of(context).size.width * 0.8,
-              swipeEdge: 4.0,
-              orientation: AmassOrientation.bottom,
-              cardBuilder: (BuildContext context, int index) => Card(
-                child: Stack(
-                  alignment: AlignmentDirectional.bottomEnd,
-                  children: [
-                    Image.asset('${profileImages[index]}'),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: FloatingActionButton(
-                            heroTag: getButtonIndex(),
-                            backgroundColor: Colors.red,
-                            child: Icon(Icons.close),
-                            onPressed: () {
-                              swipeLeft();
-                            },
-                          ),
+              child: StreamBuilder(
+                  stream: _firestore.collection('details').snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData)
+                      return new Text("No possible Matches to Display");
+                    final users = snapshot.data.documents;
+
+                    return TinderSwapCard(
+                      swipeCompleteCallback:
+                          (CardSwipeOrientation orientation, int index) {
+                        print('SWIPE ORIENTATION: $orientation');
+                        print('SWIPE INDEX $index');
+                        if (orientation == CardSwipeOrientation.right) {}
+                      },
+                      allowVerticalMovement: false,
+                      cardController: controller,
+                      totalNum: number,
+                      stackNum: number,
+                      maxHeight: MediaQuery.of(context).size.width * 0.9,
+                      maxWidth: MediaQuery.of(context).size.width * 0.9,
+                      minWidth: MediaQuery.of(context).size.width * 0.7,
+                      minHeight: MediaQuery.of(context).size.width * 0.8,
+                      swipeEdge: 4.0,
+                      orientation: AmassOrientation.bottom,
+                      cardBuilder: (BuildContext context, int index) => Card(
+                        child: Stack(
+                          fit: StackFit.expand,
+                          alignment: AlignmentDirectional.center,
+                          children: [
+                            FittedBox(
+                                fit: BoxFit.fill,
+                                child:
+                                    Image.network('${profileImages[index]}')),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Text(
+                                        userNames[index],
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                    ),
+                                    //color: Colors.white,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: Colors.red[500],
+                                      ),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(20),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: FloatingActionButton(
+                                      heroTag: getButtonIndex(),
+                                      backgroundColor: Colors.red,
+                                      child: Icon(Icons.close),
+                                      onPressed: () {
+                                        swipeLeft();
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: FloatingActionButton(
+                                      heroTag: getButtonIndex(),
+                                      backgroundColor: Colors.green,
+                                      child: Icon(Icons.check),
+                                      onPressed: () {
+                                        swipeRight();
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: FloatingActionButton(
-                            heroTag: getButtonIndex(),
-                            backgroundColor: Colors.green,
-                            child: Icon(Icons.check),
-                            onPressed: () {
-                              swipeRight();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              //cardController: controller = CardController(),
-            ),
-          ),
+                      ),
+//cardController: controller = CardController(),
+                    );
+                  })),
         ),
       ),
     );
@@ -211,3 +265,60 @@ class _SwipeScreenState extends State<SwipeScreen> {
     return (buttonIndex++).toString();
   }
 }
+
+// TinderSwapCard(
+// swipeCompleteCallback:
+// (CardSwipeOrientation orientation, int index) {
+// print('SWIPE ORIENTATION: $orientation');
+// print('SWIPE INDEX $index');
+// if(orientation == CardSwipeOrientation.right) {
+//
+// }
+// },
+// allowVerticalMovement: false,
+// cardController: controller,
+// totalNum: number,
+// stackNum: number,
+// maxHeight: MediaQuery.of(context).size.width * 0.9,
+// maxWidth: MediaQuery.of(context).size.width * 0.9,
+// minWidth: MediaQuery.of(context).size.width * 0.8,
+// minHeight: MediaQuery.of(context).size.width * 0.8,
+// swipeEdge: 4.0,
+// orientation: AmassOrientation.bottom,
+// cardBuilder: (BuildContext context, int index) => Card(
+// child: Stack(
+// alignment: AlignmentDirectional.bottomEnd,
+// children: [
+// Image.network('${profileImages[index]}'),
+// Row(
+// mainAxisAlignment: MainAxisAlignment.end,
+// children: [
+// Padding(
+// padding: const EdgeInsets.all(8.0),
+// child: FloatingActionButton(
+// heroTag: getButtonIndex(),
+// backgroundColor: Colors.red,
+// child: Icon(Icons.close),
+// onPressed: () {
+// swipeLeft();
+// },
+// ),
+// ),
+// Padding(
+// padding: const EdgeInsets.all(8.0),
+// child: FloatingActionButton(
+// heroTag: getButtonIndex(),
+// backgroundColor: Colors.green,
+// child: Icon(Icons.check),
+// onPressed: () {
+// swipeRight();
+// },
+// ),
+// ),
+// ],
+// ),
+// ],
+// ),
+// ),
+// //cardController: controller = CardController(),
+// ),

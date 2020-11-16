@@ -15,12 +15,14 @@ void main() async {
   runApp(MyApp());
 }
 
+// Login -> match -> chatWall -> chat
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       //darkTheme: ThemeData.dark(),
-      initialRoute: SwipeScreen.id,
+      initialRoute: WelcomeScreen.id,
       routes: {
         WelcomeScreen.id: (context) => WelcomeScreen(),
         RegistrationScreen.id: (context) => RegistrationScreen(),
